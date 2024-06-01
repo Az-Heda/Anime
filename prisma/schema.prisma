@@ -1,0 +1,174 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+    provider = "prisma-client-js"
+}
+
+datasource db {
+    provider = "sqlite"
+    url      = env("DATABASE_URL")
+}
+
+// ----------------------------------------------------- //
+// --                   STAND ALONE                   -- //
+// ----------------------------------------------------- //
+
+model Statuses {
+    Id    Int     @id @default(autoincrement())
+    Name  String  @unique
+    Anime Anime[]
+}
+
+model Types {
+    Id    String  @id @unique
+    Name  String  @unique
+    Anime Anime[]
+}
+
+model Studios {
+    Id           String         @id @unique
+    Name         String         @unique
+    Anime_Studio Anime_Studio[]
+}
+
+model Seasons {
+    Id     String  @id @unique
+    Season String  @unique
+    Anime  Anime[]
+}
+
+model Images {
+    Id              String            @id @unique
+    Url             String            @unique
+    Anime_Image     Anime_Image[]
+    Character_Image Character_Image[]
+}
+
+model Genres {
+    Id           String         @id @unique
+    Name         String         @unique
+    Anime_Genres Anime_Genres[]
+}
+
+model Themes {
+    Id          String        @id @unique
+    Name        String        @unique
+    Anime_Theme Anime_Theme[]
+}
+
+// ----------------------------------------------------- //
+// --                   MAIN TABLES                   -- //
+// ----------------------------------------------------- //
+
+model Anime {
+    Id               String            @id @unique
+    Title            String
+    AlternativeTitle String?
+    Aired            BigInt?
+    Duration         BigInt?
+    Broadcast        Int?
+    Url              String
+    Season_ID        String
+    Type_ID          String
+    CurrentStatus    Int
+    Season           Seasons           @relation(fields: [Season_ID], references: [Id])
+    Type             Types             @relation(fields: [Type_ID], references: [Id])
+    Status           Statuses          @relation(fields: [CurrentStatus], references: [Id])
+    Episode          Episode[]
+    Description      Description[]
+    Anime_Studio     Anime_Studio[]
+    Anime_Character  Anime_Character[]
+    Anime_Genres     Anime_Genres[]
+    Anime_Theme      Anime_Theme[]
+    Anime_Image      Anime_Image[]
+}
+
+model Episode {
+    Id          String        @id @unique
+    Number      Float
+    Title       String?
+    Aired       BigInt?
+    Duration    BigInt?
+    Anime_ID    String
+    Anime       Anime         @relation(fields: [Anime_ID], references: [Id])
+    Description Description[]
+}
+
+model Character {
+    Id              String            @id @unique
+    Name            String
+    Url             String
+    Description     Description[]
+    Anime_Character Anime_Character[]
+    Character_Image Character_Image[]
+}
+
+model Description {
+    Id           String     @id @unique
+    Description  String
+    Anime_ID     String?
+    Episode_ID   String?
+    Character_ID String?
+    Anime        Anime?     @relation(fields: [Anime_ID], references: [Id])
+    Episode      Episode?   @relation(fields: [Episode_ID], references: [Id])
+    Character    Character? @relation(fields: [Character_ID], references: [Id])
+}
+
+// ---------------------------------------------------- //
+// --                 LINKING TABLES                 -- //
+// ---------------------------------------------------- //
+
+model Anime_Studio {
+    Anime_ID  String
+    Studio_ID String
+    Anime     Anime   @relation(fields: [Anime_ID], references: [Id])
+    Studio    Studios @relation(fields: [Studio_ID], references: [Id])
+
+    @@id([Anime_ID, Studio_ID])
+}
+
+model Anime_Character {
+    Anime_ID     String
+    Character_ID String
+    Anime        Anime     @relation(fields: [Anime_ID], references: [Id])
+    Character    Character @relation(fields: [Character_ID], references: [Id])
+
+    @@id([Anime_ID, Character_ID])
+}
+
+model Anime_Genres {
+    Anime_ID String
+    Genre_ID String
+    Anime    Anime  @relation(fields: [Anime_ID], references: [Id])
+    Genre    Genres @relation(fields: [Genre_ID], references: [Id])
+
+    @@id([Anime_ID, Genre_ID])
+}
+
+model Anime_Theme {
+    Anime_ID String
+    Theme_ID String
+    Anime    Anime  @relation(fields: [Anime_ID], references: [Id])
+    Theme    Themes @relation(fields: [Theme_ID], references: [Id])
+
+    @@id([Anime_ID, Theme_ID])
+}
+
+model Anime_Image {
+    Anime_ID String
+    Image_ID String
+    Anime    Anime  @relation(fields: [Anime_ID], references: [Id])
+    Image    Images @relation(fields: [Image_ID], references: [Id])
+
+    @@id([Anime_ID, Image_ID])
+}
+
+model Character_Image {
+    Character_ID String
+    Image_ID     String
+    Character    Character @relation(fields: [Character_ID], references: [Id])
+    Image        Images    @relation(fields: [Image_ID], references: [Id])
+
+    @@id([Character_ID, Image_ID])
+}
