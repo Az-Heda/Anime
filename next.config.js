@@ -5,4 +5,5 @@ const nextConfig = {
 	basePath: '/anime',
 };
 
+
 module.exports = nextConfig;
